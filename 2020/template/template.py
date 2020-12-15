@@ -4,7 +4,7 @@ import time
 
 def parse(filename):
     with open(filename, "r") as fd:
-        data = fd.read().split()
+        data = fd.readlines()
     return data
 
 def partOne(data):
@@ -27,4 +27,4 @@ if __name__ == '__main__':
     # results
     print("Part 1:\n{0}".format(solution1))
     print("Part 2:\n{0}".format(solution2))
-    print("Time: {0} seconds".format(round(end-start,4)))
+    print("Time: {0} ms".format(round((end-start) * 1000,4)))
