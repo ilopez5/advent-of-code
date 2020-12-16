@@ -4,7 +4,7 @@ import time
 
 def parse(filename):
     with open(filename, "r") as fd:
-        data = fd.readlines()
+        data = fd.read().splitlines()
     return data
 
 def partOne(data):
