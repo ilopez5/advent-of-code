@@ -2,9 +2,6 @@
 import sys
 import time
 import re
-import math
-import itertools as it
-from defaultlist import defaultlist
 
 def parse(filename):
     with open(filename, "r") as fd:
@@ -19,14 +16,14 @@ def partOne(data):
         cmd, value = line.split(" = ")
 
         if cmd == "mask":
-            mask.clear()
             # populate the mask
+            mask.clear()
             for bit in range(35, -1, -1):
                 if value[bit] != 'X':
                     mask[bit] = value[bit]
         else:
             # determine memory index to store
-            midx = int(re.findall(r'\d+', cmd)[0])
+            address = int(re.findall(r'\d+', cmd)[0])
 
             # convert number into binary string
             output = bin(int(value))[2:]
@@ -43,7 +40,7 @@ def partOne(data):
             output = ''.join(output)
 
             # store in memory location
-            mem[midx] = int(output, 2)
+            mem[address] = int(output, 2)
     return sum(mem.values())
 
 def storePermutations(mem, floating, output, value):
