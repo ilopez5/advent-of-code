@@ -42,15 +42,6 @@ def printGrid(grid):
     for r in range(len(grid)):
         print("".join(grid[r]))
 
-# debugging only
-def slowCount(grid):
-    count = 0
-    for r in range(len(grid)):
-        for c in range(len(grid[0])):
-            if grid[r][c] == "#":
-                count += 1
-    return count
-
 def partOne(data):
     # assemble a 2D grid
     tempgrid = list()
