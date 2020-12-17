@@ -98,8 +98,6 @@ def partTwo(data):
 
             # store 'value' at every permutation
             storePermutations(mem, floating, addrlst, int(value))
-
-    #  print(mem)
     return sum(mem.values())
 
 if __name__ == '__main__':
