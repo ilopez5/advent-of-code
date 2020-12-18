@@ -2,10 +2,11 @@
 import sys
 import time
 import re
+from collections import defaultdict
 
 def parse(filename):
     with open(filename, "r") as fd:
-        data = fd.read().splitlines()
+        data = list(filter(lambda x: x != '', fd.read().splitlines()))
     return data
 
 def partOne(data):
@@ -26,7 +27,71 @@ def partOne(data):
     return count 
 
 def partTwo(data):
-    pass
+    fields = defaultdict(lambda: set())
+    pool   = set()
+    guess  = dict()
+    for l,line in enumerate(data):
+        if 'ticket' in line:
+            continue
+        elif l>0 and data[l-1] == "your ticket:":
+            # our ticket values
+            ourticket = [int(x) for x in line.split(',')]
+            
+            for i in range(len(ourticket)):
+                guess[i] = set(fields.keys())
+        elif ':' in line and 'ticket' not in line:
+            # rule
+            toks   = line.split(':')
+            fname  = toks[0]
+            values = [int(x) for x in re.findall(r'[\d]+', line)]
+
+            # update global pool of valid numbers
+            pool.update(range(values[:2][0], values[:2][1]+1))
+            pool.update(range(values[2:][0], values[2:][1]+1))
+
+            # update specific field range of valid numbers
+            fields[fname].update(range(values[:2][0], values[:2][1]+1))
+            fields[fname].update(range(values[2:][0], values[2:][1]+1))
+        else:
+            # actual tickets
+            # parse values into list
+            ticket = [int(x) for x in line.split(',')]
+            
+            # check if number is valid globally
+            valid = True
+            for val in ticket:
+                if val not in pool:
+                    valid = False
+                    break
+
+            if valid:
+                # valid ticket, time to learn/guess
+                for i,val in enumerate(ticket):
+                    for fname, frange in fields.items():
+                        if val not in frange:
+                            guess[i].remove(fname)
+
+    # narrow down guesses to one per index
+    pruned = set()
+    while True:
+        total = 0
+        for idx, options in guess.items():
+            prune = options.copy()
+            if len(options) == 1:
+                total += 1
+                if not prune.issubset(pruned):
+                    for i in range(len(guess)):
+                        if i != idx:
+                            guess[i].difference_update(prune)
+                    pruned.add(prune.pop())
+        if total == len(guess):
+            break
+
+    result = 1
+    for idx in range(len(ourticket)):
+        if 'departure' in guess[idx].pop():
+            result *= ourticket[idx]
+    return result
 
 if __name__ == '__main__':
     # parse data
