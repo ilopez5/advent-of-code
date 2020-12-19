@@ -37,7 +37,7 @@ def partOne(data):
             # turn left
             turn = amt
             while turn > 0:
-                direction += 1
+                direction -= 1
                 turn -= 90
             direction %= 4
         elif cmd == 'R':

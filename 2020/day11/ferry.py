@@ -33,8 +33,6 @@ def adjacentDirectionsEmpty(grid, row, col):
                 break
             r += rstep
             c += cstep
-    #  if row == 0 and col == 3:
-        #  breakpoint()
     return seatsTaken == 0, seatsTaken
 
 # debugging only
@@ -92,8 +90,6 @@ def partTwo(data):
     seatCount = 0
     changes = 1 
     while changes > 0:
-        #  printGrid(grid)
-        #  print("\n")
         changes = 0
         for r in range(len(grid)):
             for c in range(len(grid[0])):
