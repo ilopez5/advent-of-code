@@ -72,18 +72,21 @@ def partTwo(data):
                             guess[i].remove(fname)
 
     # narrow down guesses to one per index
-    pruned = set()
+    alreadyPruned = set()
     while True:
         total = 0
         for idx, options in guess.items():
-            prune = options.copy()
+            toPrune = options.copy()
             if len(options) == 1:
+                # this index has been narrowed down
                 total += 1
-                if not prune.issubset(pruned):
+                if not toPrune.issubset(alreadyPruned):
+                    # new field to be pruned
                     for i in range(len(guess)):
                         if i != idx:
-                            guess[i].difference_update(prune)
-                    pruned.add(prune.pop())
+                            guess[i].difference_update(toPrune)
+                    # log as pruned so we don't repeat
+                    alreadyPruned.add(toPrune.pop())
         if total == len(guess):
             break
 
