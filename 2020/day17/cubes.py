@@ -7,10 +7,12 @@ activeCubes = set()
 pointMap    = dict()
 
 class Point():
-    def __init__(self, x, y, z, active=False):
-        self.x = x
-        self.y = y
-        self.z = z
+    def __init__(self, coords, dim=3, active=False):
+        self.x = coords[0]
+        self.y = coords[1]
+        self.z = coords[2]
+        self.w = 0 if dim == 3 else coords[3]
+        self.dimensions = dim
         self.active = active
         self.neighbors = self.generateNeighbors()
 
@@ -19,11 +21,20 @@ class Point():
         for x in range(self.x-1, self.x+2):
             for y in range(self.y-1, self.y+2):
                 for z in range(self.z-1, self.z+2):
-                    if (x,y,z) != self.coords():
-                        n.add((x,y,z))
+                    if self.dimensions == 4:
+                        # four dimensions
+                        for w in range(self.w-1, self.w+2):
+                            if (x,y,z,w) != self.coords():
+                                n.add((x,y,z,w))
+                    else:
+                        # three dimensions
+                        if (x,y,z) != self.coords():
+                            n.add((x,y,z))
         return n
 
     def coords(self):
+        if self.dimensions == 4:
+            return (self.x, self.y, self.z, self.w)
         return (self.x, self.y, self.z)
 
     def isActive(self):
@@ -33,21 +44,21 @@ class Point():
         print("{{coords={0}, active={1}}}".format(self.coords(), self.active))
 
 
-def countActiveNeighbors(point):
+def countActiveNeighbors(point, dim):
     count = 0
     for neighbor in point.neighbors:
         if neighbor not in allCubes:
             # first appearance, inactive but leg work required
-            new = Point(neighbor[0], neighbor[1], neighbor[2])
+            new = Point(neighbor, dim=dim)
             allCubes.add(neighbor)
             pointMap[new.coords()] = new
         elif neighbor in activeCubes:
             count += 1
     return count
 
-def countAndCheck(active, cube):
+def countAndCheck(active, cube, dim=3):
     point = pointMap[cube]
-    count = countActiveNeighbors(point)
+    count = countActiveNeighbors(point, dim)
 
     # determine if point needs to change state
     if point.isActive() and count not in [2,3]:
@@ -63,13 +74,15 @@ def parse(filename):
         data = fd.read().splitlines()
     return data
 
-def partOne(data):
-    global activeCubes
-    # parse initial layout
+def initialize(data, dim):
+    global activeCubes, allCubes, pointMap
+    activeCubes.clear()
+    allCubes.clear()
+    pointMap.clear()
     for y in range(len(data)): # y-axis
         for x in range(len(data[y])): # x-axis
             # create new point obj
-            p = Point(x=x, y=y, z=0, active=(data[y][x] == '#'))
+            p = Point((x,y,0,0), dim=dim, active=(data[y][x] == '#'))
 
             # store in respective sets/dicts
             pointMap[p.coords()] = p
@@ -77,26 +90,37 @@ def partOne(data):
             if p.isActive():
                 activeCubes.add(p.coords())
 
+def boot(dims=3):
+    global activeCubes
     # run boot sequence (6 cycles)
     for cycle in range(6):
         # copy state of points for simultaneous modifications
         tempActive = activeCubes.copy()
-        instance   = allCubes.copy()
 
         # run through all existing cubes (at this instance)
-        for cube in instance:
+        for cube in activeCubes:
             # perform check on ourself
-            countAndCheck(tempActive, cube)
+            countAndCheck(tempActive, cube, dims)
             
             # perform check on all our neighbors
             for neighbor in pointMap[cube].neighbors:
-                countAndCheck(tempActive, neighbor)
-       # store all results simulatenously
+                countAndCheck(tempActive, neighbor, dims)
+        # store all results simulatenously
         activeCubes = tempActive.copy()
+
+
+def partOne(data):
+    # parse and initialize
+    initialize(data, dim=3)
+    boot()
     return len(activeCubes)
     
 def partTwo(data):
-    pass
+    # parse and initialize
+    initialize(data, dim=4)
+    boot(dims=4)
+    return len(activeCubes)
+
 
 if __name__ == '__main__':
     # parse data
