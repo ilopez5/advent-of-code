@@ -16,19 +16,9 @@ class Tile:
         self.id        = tid
         self.edges     = defaultdict(lambda: list())
         self.neighbors = dict(top=False,right=False,bottom=False,left=False)
-        self.checked   = dict(top=False,right=False,bottom=False,left=False)
         self.perms     = set()
     
-    def isFullyChecked(self):
-        return all(self.checked.values())
-
-    def setFullyChecked(self):
-        for edge in ops:
-            self.checked[edge] = True
-
     def isCorner(self):
-        assert(self.isFullyChecked())
-
         if not self.neighbors['top']    and not self.neighbors['right']:
             return True
         if not self.neighbors['top']    and not self.neighbors['left']:
@@ -91,9 +81,6 @@ def compare(main):
     for tid in allTiles:
         other = puzzle[tid]
 
-        if other == main:
-            continue
-
         # check all sides
         for edge in ops:
             # check if this edge matches 'other' in any way
@@ -102,7 +89,6 @@ def compare(main):
                 main.neighbors[edge] = True
 
     # mark as checked
-    main.setFullyChecked()
     checked.add(main.id)
 
     # check if it is a corner
@@ -133,9 +119,6 @@ def partOne(data):
         result *= tid
     return result
 
-def partTwo(data):
-    pass
-
 if __name__ == '__main__':
     # parse data
     data = parse(sys.argv[1])
@@ -143,11 +126,7 @@ if __name__ == '__main__':
     # part 1
     start = time.perf_counter()
     solution1 = partOne(data)
-
-    # part 2
-    solution2 = partTwo(data)
     end = time.perf_counter()
     # results
     print("Part 1:\n{0}".format(solution1))
-    print("Part 2:\n{0}".format(solution2))
     print("Time: {0} ms".format(round((end-start) * 1000,4)))
